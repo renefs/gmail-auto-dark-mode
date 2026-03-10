@@ -1,3 +1,8 @@
+---
+layout: default
+title: Privacy Policy
+---
+
 # Privacy Policy — Gmail Auto Dark Mode
 
 **Last updated: March 9, 2026**
@@ -30,4 +35,4 @@ If this policy is updated, the new version will be published in this repository 
 
 ## Contact
 
-If you have any questions about this privacy policy, please open an issue in the [GitHub repository](../../issues).
+If you have any questions about this privacy policy, please open an issue in the [GitHub repository]({{ site.github.repository_url }}/issues).
