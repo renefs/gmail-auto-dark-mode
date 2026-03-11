@@ -29,7 +29,9 @@ const applyTheme = () => {
           filter: invert(1) hue-rotate(180deg) !important;
         }
       `;
-      document.documentElement.appendChild(styleTag);
+      // Prefer <head> for proper style placement; fall back to <html> at document_start
+      // when <head> is not yet available.
+      (document.head || document.documentElement).appendChild(styleTag);
     }
   } else {
     if (styleTag) {
@@ -38,17 +40,25 @@ const applyTheme = () => {
   }
 };
 
-// Initial execution
+// Initial execution (may run before <head> exists at document_start)
 applyTheme();
+
+// Re-apply once the DOM is ready so the style is properly placed in <head>
+// and survives Gmail's initial DOM setup.
+document.addEventListener('DOMContentLoaded', applyTheme);
 
 // Listen for changes in the system preference (Light/Dark)
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 
-// Reapply styles if the DOM changes (Gmail is a SPA)
+// Reapply styles if the DOM changes (Gmail is a SPA and may remove injected styles).
+// subtree:true ensures we detect removals whether the style lives in <html> or <head>.
+// Debouncing avoids excessive calls caused by Gmail's frequent DOM mutations.
+let debounceTimer;
 const observer = new MutationObserver(() => {
-  if (!document.getElementById('auto-dark-gmail-styles') && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-    applyTheme();
-  }
+  if (!window.matchMedia('(prefers-color-scheme: dark)').matches) return;
+  if (document.getElementById('auto-dark-gmail-styles')) return;
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(applyTheme, 50);
 });
 
-observer.observe(document.documentElement, { childList: true, subtree: false });
+observer.observe(document.documentElement, { childList: true, subtree: true });

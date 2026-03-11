@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Gmail Auto Dark Mode",
-  "version": "1.0.0",
-  "description": "Automatically switches Gmail to dark mode based on your system's light/dark preference.",
+  "version": "1.0.1",
+  "description": "Gives Gmail a dark theme automatically when your OS is in dark mode. Zero setup, no permissions, real-time switching.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",
