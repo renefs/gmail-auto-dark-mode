@@ -68,6 +68,14 @@ This extension collects no user data whatsoever. All processing happens locally 
 
 Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change.
 
+## Development
+
+Packaging the extension:
+
+```bash
+zip -r gmail-auto-dark-mode.zip extension/
+```
+
 ## License
 
 [MIT](LICENSE)
