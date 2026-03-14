@@ -23,7 +23,7 @@ To activate dark mode, make sure your OS is set to dark mode (see [How to enable
 
 ### From the Chrome Web Store
 
-_(Coming soon)_
+[<img src="https://developer.chrome.com/static/docs/webstore/branding/image/HRs9MPufa1J1h5glNhut.png" alt="Available in the Chrome Web Store" height="58">](https://chromewebstore.google.com/detail/gmail-auto-dark-mode/gdpghafiebdcfbkdimnllfimfjllaifb)
 
 ### Manual installation (developer mode)
 
