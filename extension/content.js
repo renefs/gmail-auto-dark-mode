@@ -17,7 +17,8 @@ const applyTheme = () => {
           filter: invert(1) hue-rotate(180deg) !important;
         }
         /* Prevents images and videos from appearing inverted */
-        img, video, canvas, [style*="background-image"] {
+        img, video, canvas, [style*="background-image"], svg,
+        .qj, .at, .ahR /* Label colors */ {
           filter: invert(1) hue-rotate(180deg) !important;
         }
         /* Specific adjustment for Gmail icons to maintain visibility */
@@ -25,7 +26,7 @@ const applyTheme = () => {
           filter: none !important;
         }
         /* Restore original colors for stars and importance arrows (counter-invert) */
-        .T-KT, .pH, .a9q {
+        .T-KT, .pH, .a9q, .pH.a9q {
           filter: invert(1) hue-rotate(180deg) !important;
         }
       `;
