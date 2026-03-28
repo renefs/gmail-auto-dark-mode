@@ -20,13 +20,15 @@ const applyTheme = () => {
         }
         /* Counter-invert media elements so they display with original colors.
            Also counter-inverts label color chips (.qj, .at, .ahR) in the sidebar. */
-        img, video, canvas, [style*="background-image"], svg,
+        iframe, img, video, canvas, [style*="background-image"], svg,
         .qj, .at, .ahR {
           filter: invert(1) hue-rotate(180deg) !important;
         }
         /* Gmail top-bar account/app icons (.gb_tc) and attachment thumbnails (.bjK):
-           resetting to no filter keeps them looking correct without counter-inversion. */
-        .gb_tc, .bjK {
+           resetting to no filter keeps them looking correct without counter-inversion.
+           The "show details" arrow (.ajv) is a dark img that must NOT be counter-inverted
+           so the html-level inversion makes it appear light/visible on dark backgrounds. */
+        .gb_tc, .bjK, .ajy, .ajv, .ajz {
           filter: none !important;
         }
         /* Star icons (.T-KT) and importance markers (.pH, .a9q):
