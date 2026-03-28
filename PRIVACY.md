@@ -5,34 +5,34 @@ title: Privacy Policy
 
 # Privacy Policy — Gmail Auto Dark Mode
 
-**Last updated: March 9, 2026**
+**Last Updated: March 9, 2026**
 
-## Overview
+This Privacy Policy describes how the "Gmail Auto Dark Mode" Chrome Extension ("we", "our", or "the extension") handles your information.
 
-Gmail Auto Dark Mode is a Chrome extension that applies a dark mode CSS filter to Gmail based on your system's color scheme preference. This policy explains what data the extension does and does not collect.
+## 1. Data Collection and Usage
 
-## Data collection
+Gmail Auto Dark Mode is designed with privacy as a primary focus. **This extension collects no data of any kind.** It does not read, store, or transmit any email content, personally identifiable information (PII), browsing behavior, or history. No cookies or local/session storage are used, and the extension does not communicate with any external server or third-party service.
 
-This extension collects **no data** of any kind. Specifically:
+All processing happens entirely within your browser. The extension only injects a CSS filter into `https://mail.google.com/*` and reads the OS-level color scheme preference (`prefers-color-scheme`) to decide whether to apply dark mode.
 
-- It does not read, store, or transmit any email content.
-- It does not collect any personally identifiable information (PII).
-- It does not track browsing behavior or history.
-- It does not use cookies or any form of local/session storage.
-- It does not communicate with any external server or third-party service.
+## 2. Permissions Required and Why We Need Them
 
-## How the extension works
+Gmail Auto Dark Mode requires the following Chrome permission to function correctly:
 
-The extension only injects a CSS filter into `https://mail.google.com/*` to change the visual appearance of Gmail. It reads the OS-level color scheme preference (`prefers-color-scheme`) to decide whether to apply dark mode. All processing happens entirely within your browser.
+- **Host Permission (`https://mail.google.com/*`):** Allows the extension to inject a CSS filter into Gmail to change its visual appearance based on your system's color scheme preference. No other permissions are requested.
 
-## Permissions
+## 3. Data Sharing and Third Parties
 
-The extension declares a single host permission (`https://mail.google.com/*`) solely to allow the CSS injection. No other permissions are requested.
+We **do not** sell, trade, or otherwise transfer your information to outside parties. Because this extension collects no data whatsoever, there is nothing to share or expose.
 
-## Changes to this policy
+## 4. Your Rights and Control
 
-If this policy is updated, the new version will be published in this repository with an updated date.
+This extension stores no data, so there is nothing to delete or export. You can fully remove any trace of it by uninstalling the extension from your browser.
 
-## Contact
+## 5. Changes to This Privacy Policy
 
-If you have any questions about this privacy policy, please open an issue in the [GitHub repository]({{ site.github.repository_url }}/issues).
+We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last Updated" date.
+
+## 6. Contact Us
+
+If you have any questions or suggestions about our Privacy Policy, please open an issue on our [GitHub repository]({{ site.github.repository_url }}/issues).
