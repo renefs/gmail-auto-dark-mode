@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3] - 2026-05-27
+
+### Changed
+- Shifted to a softer dark mode utilizing brightness, contrast, and saturation filters instead of a strict invert.
+- Added explicit background colors, border colors, and box-shadow removals to refine specific Gmail UI elements.
+- Improved font rendering in dark mode using anti-aliasing optimizations.
+- Fixed the opacity and colors of star icons and importance markers so they display correctly.
+- Forced `color-scheme: dark` at the `:root` level for better native compatibility.
+
 ## [1.0.2] - 2026-03-22
 
 ### Changed

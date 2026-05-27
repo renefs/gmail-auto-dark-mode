@@ -13,32 +13,51 @@ const applyTheme = () => {
     if (!styleTag) {
       const newStyleTag = document.createElement('style');
       newStyleTag.id = 'auto-dark-gmail-styles';
-      // Selective inversion to simulate Chrome DevTools behavior
+
       newStyleTag.textContent = `
-        html {
-          filter: invert(1) hue-rotate(180deg) !important;
+        :root {
+          color-scheme: dark !important;
         }
-        /* Counter-invert media elements so they display with original colors.
-           Also counter-inverts label color chips (.qj, .at, .ahR) in the sidebar. */
-        iframe, img, video, canvas, [style*="background-image"], svg,
+        html {
+          /* Softer dark: High brightness lifts blacks to grays, lower contrast reduces "void" feel */
+          filter: invert(1) hue-rotate(180deg) brightness(1.2) contrast(0.85) saturate(1.1) !important;
+          background-color: #f1f3f4 !important;
+        }
+        * {
+          -webkit-font-smoothing: antialiased !important;
+          -moz-osx-font-smoothing: grayscale !important;
+          text-rendering: optimizeLegibility !important;
+        }
+        .gb_Td, .gb_Vd, .gb_Wd, .S7, .aeN, .z0, .G-atb, .brC-brI, .T-I-KE {
+          box-shadow: none !important;
+        }
+        /* Counter-invert media and specific UI elements to restore original colors */
+        img, video, canvas, [style*="background-image"], svg,
         .qj, .at, .ahR {
           filter: invert(1) hue-rotate(180deg) !important;
         }
-        /* Gmail top-bar account/app icons (.gb_tc) and attachment thumbnails (.bjK):
-           resetting to no filter keeps them looking correct without counter-inversion.
-           The "show details" arrow (.ajv) is a dark img that must NOT be counter-inverted
-           so the html-level inversion makes it appear light/visible on dark backgrounds. */
+        form#aso_search_form_anchor {
+          background-color: #e8eaed !important;
+          border: 1px solid transparent !important;
+        }
+        .ae4, .qh, .G-atb, .Ym, .brC-brI, .aeQ, .G-tF {
+          border-color: #dadce0 !important;
+        }
+        .n6, .bhZ.n3, .J-Ke.n0 {
+          background-color: #e8f0fe !important;
+        }
+        .T-KT, .pH, .a9q {
+          filter: none !important;
+          opacity: 1 !important;
+        }
+        .T-KT.T-KT-CE, .pH.yX, .WA.xY, .pH.a9q {
+          filter: invert(1) hue-rotate(180deg) !important;
+          opacity: 1 !important;
+        }
         .gb_tc, .bjK, .ajy, .ajv, .ajz {
           filter: none !important;
         }
-        /* Star icons (.T-KT) and importance markers (.pH, .a9q):
-           counter-invert to restore their original yellow/orange colors. */
-        .T-KT, .pH, .a9q, .pH.a9q {
-          filter: invert(1) hue-rotate(180deg) !important;
-        }
       `;
-      // Prefer <head> for proper style placement; fall back to <html> at document_start
-      // when <head> is not yet available.
       (document.head || document.documentElement).appendChild(newStyleTag);
     }
   } else {
