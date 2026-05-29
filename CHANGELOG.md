@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.4] - 2026-05-29
+
+### Fixed
+- Fixed an issue where images in nested subframes (such as chats and email bodies) were not being counter-inverted, causing them to look like negatives. Added `"all_frames": true` and `"match_about_blank": true` to support Gmail's dynamic iframe structure.
+- Updated the counter-inversion logic to mathematically invert parent filter adjustments (brightness, contrast, and saturation) to perfectly restore original image and media colors.
+
 ## [1.0.3] - 2026-05-27
 
 ### Changed

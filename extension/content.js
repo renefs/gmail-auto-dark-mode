@@ -14,50 +14,73 @@ const applyTheme = () => {
       const newStyleTag = document.createElement('style');
       newStyleTag.id = 'auto-dark-gmail-styles';
 
-      newStyleTag.textContent = `
-        :root {
-          color-scheme: dark !important;
-        }
-        html {
-          /* Softer dark: High brightness lifts blacks to grays, lower contrast reduces "void" feel */
-          filter: invert(1) hue-rotate(180deg) brightness(1.2) contrast(0.85) saturate(1.1) !important;
-          background-color: #f1f3f4 !important;
-        }
-        * {
-          -webkit-font-smoothing: antialiased !important;
-          -moz-osx-font-smoothing: grayscale !important;
-          text-rendering: optimizeLegibility !important;
-        }
-        .gb_Td, .gb_Vd, .gb_Wd, .S7, .aeN, .z0, .G-atb, .brC-brI, .T-I-KE {
-          box-shadow: none !important;
-        }
-        /* Counter-invert media and specific UI elements to restore original colors */
-        img, video, canvas, [style*="background-image"], svg,
-        .qj, .at, .ahR {
-          filter: invert(1) hue-rotate(180deg) !important;
-        }
-        form#aso_search_form_anchor {
-          background-color: #e8eaed !important;
-          border: 1px solid transparent !important;
-        }
-        .ae4, .qh, .G-atb, .Ym, .brC-brI, .aeQ, .G-tF {
-          border-color: #dadce0 !important;
-        }
-        .n6, .bhZ.n3, .J-Ke.n0 {
-          background-color: #e8f0fe !important;
-        }
-        .T-KT, .pH, .a9q {
-          filter: none !important;
-          opacity: 1 !important;
-        }
-        .T-KT.T-KT-CE, .pH.yX, .WA.xY, .pH.a9q {
-          filter: invert(1) hue-rotate(180deg) !important;
-          opacity: 1 !important;
-        }
-        .gb_tc, .bjK, .ajy, .ajv, .ajz {
-          filter: none !important;
-        }
-      `;
+      const isTopFrame = window === window.top;
+
+      if (isTopFrame) {
+        newStyleTag.textContent = `
+          :root {
+            color-scheme: dark !important;
+          }
+          html {
+            /* Softer dark: High brightness lifts blacks to grays, lower contrast reduces "void" feel */
+            filter: invert(1) hue-rotate(180deg) brightness(1.2) contrast(0.85) saturate(1.1) !important;
+            background-color: #f1f3f4 !important;
+          }
+          * {
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: optimizeLegibility !important;
+          }
+          .gb_Td, .gb_Vd, .gb_Wd, .S7, .aeN, .z0, .G-atb, .brC-brI, .T-I-KE {
+            box-shadow: none !important;
+          }
+          /* Counter-invert media and specific UI elements to restore original colors.
+             We also mathematically invert the parent filter's brightness, contrast, and saturation.
+             brightness(1 / 1.2) = 0.833; contrast(1 / 0.85) = 1.176; saturate(1 / 1.1) = 0.909 */
+          img, video, canvas, [style*="background-image"], svg,
+          .qj, .at, .ahR {
+            filter: invert(1) hue-rotate(180deg) brightness(0.833) contrast(1.176) saturate(0.909) !important;
+          }
+          form#aso_search_form_anchor {
+            background-color: #e8eaed !important;
+            border: 1px solid transparent !important;
+          }
+          .ae4, .qh, .G-atb, .Ym, .brC-brI, .aeQ, .G-tF {
+            border-color: #dadce0 !important;
+          }
+          .n6, .bhZ.n3, .J-Ke.n0 {
+            background-color: #e8f0fe !important;
+          }
+          .T-KT, .pH, .a9q {
+            filter: none !important;
+            opacity: 1 !important;
+          }
+          .T-KT.T-KT-CE, .pH.yX, .WA.xY, .pH.a9q {
+            filter: invert(1) hue-rotate(180deg) brightness(0.833) contrast(1.176) saturate(0.909) !important;
+            opacity: 1 !important;
+          }
+          .gb_tc, .bjK, .ajy, .ajv, .ajz {
+            filter: none !important;
+          }
+        `;
+      } else {
+        // In subframes, we only want to counter-invert media and specific UI elements.
+        // We do not apply the global inversion filter to html, because the parent
+        // frame is already inverting the entire iframe.
+        newStyleTag.textContent = `
+          /* Counter-invert media and specific UI elements to restore original colors.
+             We also mathematically invert the parent filter's brightness, contrast, and saturation.
+             brightness(1 / 1.2) = 0.833; contrast(1 / 0.85) = 1.176; saturate(1 / 1.1) = 0.909 */
+          img, video, canvas, [style*="background-image"], svg,
+          .qj, .at, .ahR {
+            filter: invert(1) hue-rotate(180deg) brightness(0.833) contrast(1.176) saturate(0.909) !important;
+          }
+          .T-KT.T-KT-CE, .pH.yX, .WA.xY, .pH.a9q {
+            filter: invert(1) hue-rotate(180deg) brightness(0.833) contrast(1.176) saturate(0.909) !important;
+            opacity: 1 !important;
+          }
+        `;
+      }
       (document.head || document.documentElement).appendChild(newStyleTag);
     }
   } else {
