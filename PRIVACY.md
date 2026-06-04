@@ -5,7 +5,7 @@ title: Privacy Policy
 
 # Privacy Policy — Gmail Auto Dark Mode
 
-**Last Updated: March 9, 2026**
+**Last Updated: June 4, 2026**
 
 This Privacy Policy describes how the "Gmail Auto Dark Mode" Chrome Extension ("we", "our", or "the extension") handles your information.
 
@@ -13,13 +13,13 @@ This Privacy Policy describes how the "Gmail Auto Dark Mode" Chrome Extension ("
 
 Gmail Auto Dark Mode is designed with privacy as a primary focus. **This extension collects no data of any kind.** It does not read, store, or transmit any email content, personally identifiable information (PII), browsing behavior, or history. No cookies or local/session storage are used, and the extension does not communicate with any external server or third-party service.
 
-All processing happens entirely within your browser. The extension only injects a CSS filter into `https://mail.google.com/*` and reads the OS-level color scheme preference (`prefers-color-scheme`) to decide whether to apply dark mode.
+All processing happens entirely within your browser. The extension only injects CSS style adjustments into Gmail (`mail.google.com`) and its integrated Google companion apps and subframes (such as `chat.google.com`, `keep.google.com`, `calendar.google.com`, `contacts.google.com`, `tasks.google.com`, `assistant.google.com`, `drive.google.com`, `docs.google.com`, `ogs.google.com`, `ogb.google.com`, and `www.google.com` when loaded inside Gmail) and reads the OS-level color scheme preference (`prefers-color-scheme`) to decide whether to apply dark mode styles.
 
 ## 2. Permissions Required and Why We Need Them
 
-Gmail Auto Dark Mode requires the following Chrome permission to function correctly:
+Gmail Auto Dark Mode requires Host Permissions for the aforementioned Google domains to function correctly:
 
-- **Host Permission (`https://mail.google.com/*`):** Allows the extension to inject a CSS filter into Gmail to change its visual appearance based on your system's color scheme preference. No other permissions are requested.
+- **Host Permissions:** Allows the extension to inject CSS styles and counter-inversion rules into Gmail and its integrated side panel panels to change their visual appearance based on your system's color scheme preference. No other permissions are requested.
 
 ## 3. Data Sharing and Third Parties
 

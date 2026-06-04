@@ -5,10 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2026-06-03
+
+### Fixed
+- Added Keep, Calendar, Contacts, Tasks, Docs, and Drive domains to the extension manifest matches. This allows the counter-inversion logic to run inside these companion app subframes when loaded in Gmail's side panel, fixing the issue where contact photos and side panel icons were displayed in negative/inverted colors.
+- I would have prefered to avoid having so many domains on the manifest, but it is the only solution I found for now since Google uses iframes to load the other apps in Gmail website.
+
+## [1.0.5] - 2026-06-03
+
+### Fixed
+- Fixed an issue where the extension incorrectly applied dark-mode styles to standalone Google Chat pages (`chat.google.com`) when accessed directly, while preserving the counter-inversion logic when embedded inside Gmail as a subframe.
+
 ## [1.0.4] - 2026-05-29
 
 ### Fixed
-- Fixed an issue where images in nested subframes (such as chats and email bodies) were not being counter-inverted, causing them to look like negatives. Added `"all_frames": true` and `"match_about_blank": true` to support Gmail's dynamic iframe structure.
+- Fixed an issue where images in nested subframes (such as chats, email bodies, and the Google Apps Launcher / waffle menu) were not being counter-inverted, causing them to look like negatives. Added `"all_frames": true` and `"match_about_blank": true` along with matching domains (`chat.google.com`, `ogs.google.com`, `ogb.google.com`) to support Gmail's dynamic iframe structure.
 - Updated the counter-inversion logic to mathematically invert parent filter adjustments (brightness, contrast, and saturation) to perfectly restore original image and media colors.
 
 ## [1.0.3] - 2026-05-27

@@ -8,13 +8,13 @@ Automatically applies a dark theme to Gmail when your OS is in dark mode — and
 
 - Follows your OS dark mode preference automatically — no buttons or settings
 - Switches in real time without a page reload
-- Counter-inverts images and videos so they look normal
+- Counter-inverts images, videos, and icons in emails, chats, and side panel companion apps (Keep, Calendar, Tasks, Contacts) so they look normal
 - Reapplies the theme after Gmail's internal navigation via a `MutationObserver`
 - No permissions needed — nothing is read, stored, or transmitted
 
 ## How it works
 
-Injects `filter: invert(1) hue-rotate(180deg)` into Gmail on load, driven by the `prefers-color-scheme` Web API. Images, videos, and canvases are counter-inverted to preserve their appearance.
+Injects a dark theme style adjustment into Gmail on load, driven by the `prefers-color-scheme` Web API. Images, videos, canvases, and icons in Gmail and its integrated side panel companion apps (like Keep, Calendar, Tasks, Contacts) are mathematically counter-inverted to preserve -as much as possible- their original colors and appearance.
 
 ## Installation
 
