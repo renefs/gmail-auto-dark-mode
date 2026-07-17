@@ -14,7 +14,7 @@ Automatically applies a dark theme to Gmail when your OS is in dark mode — and
 
 ## How it works
 
-Injects a dark theme style adjustment into Gmail on load, driven by the `prefers-color-scheme` Web API. Images, videos, canvases, and icons in Gmail and its integrated side panel companion apps (like Keep, Calendar, Tasks, Contacts) are mathematically counter-inverted to preserve -as much as possible- their original colors and appearance.
+Injects a dark theme style adjustment into Gmail on load, driven by the `prefers-color-scheme` Web API. Images, videos, canvases, and icons in Gmail and its integrated side panel companion apps (like Keep, Calendar, Tasks, Contacts) are mathematically counter-inverted to preserve (as much as possible) their original colors and appearance.
 
 ## Installation
 

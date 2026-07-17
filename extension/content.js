@@ -60,6 +60,80 @@
   const RESTORE_FILTER =
     'saturate(0.909091) contrast(1.176471) brightness(0.833333) hue-rotate(180deg) invert(1)';
 
+  /**
+   * CSS that restores original colors on media and a handful of specific Gmail UI
+   * elements after the page-wide dark filter has inverted everything.
+   *
+   * The selectors like .qj, .at, .ahR and .T-KT are Gmail's own minified (and
+   * therefore unstable) class names for things such as attachment chips and preview
+   * tiles. If a future Gmail update renames them, those elements simply fall back to
+   * the inverted look — nothing breaks.
+   *
+   * This block is identical in the top frame and in subframes, so it lives here and
+   * is reused everywhere instead of being copied into each style tag.
+   */
+  const COUNTER_INVERT_CSS = `
+    /* Counter-invert media and background images so they keep their true colors.
+       Matches <img>/<video>/<canvas>/<svg>, elements with an inline background image,
+       and anything we tag with .auto-dark-counter-invert at runtime.
+       The url() match also requires "background" in the style to avoid matching
+       cursor: url(...), which Gmail sets on <body> during drag & drop (matching it
+       would flip the whole page back to light). */
+    img, video, canvas, [style*="background-image"], [style*="background"][style*="url("], svg,
+    .qj, .at, .ahR, .auto-dark-counter-invert {
+      filter: ${RESTORE_FILTER} !important;
+    }
+    /* Attachment chips / preview tiles that Gmail also dims via opacity — restore that too. */
+    .T-KT.T-KT-CE, .pH.yX, .WA.xY, .pH.a9q {
+      filter: ${RESTORE_FILTER} !important;
+      opacity: 1 !important;
+    }
+  `;
+
+  /**
+   * The full stylesheet for the top Gmail frame. It applies the page-wide dark
+   * filter, then layers COUNTER_INVERT_CSS and a few Gmail-specific tweaks on top.
+   * Subframes use COUNTER_INVERT_CSS alone, since the top frame already inverts them.
+   */
+  const TOP_FRAME_CSS = `
+    :root {
+      color-scheme: dark !important;
+    }
+    html {
+      /* Softer dark: high brightness lifts blacks to grays, lower contrast reduces the "void" feel. */
+      filter: invert(1) hue-rotate(180deg) brightness(1.2) contrast(0.85) saturate(1.1) !important;
+      background-color: #f1f3f4 !important;
+    }
+    * {
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
+      text-rendering: optimizeLegibility !important;
+    }
+    .gb_Td, .gb_Vd, .gb_Wd, .S7, .aeN, .z0, .G-atb, .brC-brI, .T-I-KE {
+      box-shadow: none !important;
+    }
+    ${COUNTER_INVERT_CSS}
+    form#aso_search_form_anchor {
+      background-color: #e8eaed !important;
+      border: 1px solid transparent !important;
+    }
+    .ae4, .qh, .G-atb, .Ym, .brC-brI, .aeQ, .G-tF {
+      border-color: #dadce0 !important;
+    }
+    .n6, .bhZ.n3, .J-Ke.n0 {
+      background-color: #e8f0fe !important;
+    }
+    /* Neutralize the filter on toolbar/attachment controls in their default state.
+       Their active state (.T-KT-CE etc.) is handled by COUNTER_INVERT_CSS above. */
+    .T-KT, .pH, .a9q {
+      filter: none !important;
+      opacity: 1 !important;
+    }
+    .gb_tc, .bjK, .ajy, .ajv, .ajz {
+      filter: none !important;
+    }
+  `;
+
   const isTopFrame = window === window.top;
 
   // Whether an ANCESTOR Gmail frame currently has dark mode active. Counter-inversion
@@ -133,21 +207,7 @@
           if (!styleTag) {
             const newStyleTag = doc.createElement('style');
             newStyleTag.id = 'auto-dark-gmail-styles-subframe';
-            newStyleTag.textContent = `
-              /* Counter-invert media and specific UI elements to restore original colors.
-                 Matches elements with inline background styles containing url(), plus our dynamically tagged elements.
-                 The url() match requires "background" in the style to avoid matching cursor: url(...)
-                 which Gmail sets on <body> during drag & drop (it would flip the whole page to light).
-                 RESTORE_FILTER is the exact inverse of the dark filter (reciprocal values, reverse order). */
-              img, video, canvas, [style*="background-image"], [style*="background"][style*="url("], svg,
-              .qj, .at, .ahR, .auto-dark-counter-invert {
-                filter: ${RESTORE_FILTER} !important;
-              }
-              .T-KT.T-KT-CE, .pH.yX, .WA.xY, .pH.a9q {
-                filter: ${RESTORE_FILTER} !important;
-                opacity: 1 !important;
-              }
-            `;
+            newStyleTag.textContent = COUNTER_INVERT_CSS;
             (doc.head || doc.documentElement).appendChild(newStyleTag);
           }
           // Scan and tag dynamic backgrounds inside this subframe
@@ -162,87 +222,24 @@
   const applyTheme = () => {
     const styleTag = document.getElementById('auto-dark-gmail-styles');
 
-    if (isDarkActive()) {
-      if (!styleTag) {
-        const newStyleTag = document.createElement('style');
-        newStyleTag.id = 'auto-dark-gmail-styles';
-
-        if (isTopFrame) {
-          newStyleTag.textContent = `
-            :root {
-              color-scheme: dark !important;
-            }
-            html {
-              /* Softer dark: High brightness lifts blacks to grays, lower contrast reduces "void" feel */
-              filter: invert(1) hue-rotate(180deg) brightness(1.2) contrast(0.85) saturate(1.1) !important;
-              background-color: #f1f3f4 !important;
-            }
-            * {
-              -webkit-font-smoothing: antialiased !important;
-              -moz-osx-font-smoothing: grayscale !important;
-              text-rendering: optimizeLegibility !important;
-            }
-            .gb_Td, .gb_Vd, .gb_Wd, .S7, .aeN, .z0, .G-atb, .brC-brI, .T-I-KE {
-              box-shadow: none !important;
-            }
-            /* Counter-invert media and specific UI elements to restore original colors.
-               Matches elements with inline background styles containing url(), plus our dynamically tagged elements.
-                 The url() match requires "background" in the style to avoid matching cursor: url(...)
-                 which Gmail sets on <body> during drag & drop (it would flip the whole page to light).
-               RESTORE_FILTER is the exact inverse of the dark filter (reciprocal values, reverse order). */
-            img, video, canvas, [style*="background-image"], [style*="background"][style*="url("], svg,
-            .qj, .at, .ahR, .auto-dark-counter-invert {
-              filter: ${RESTORE_FILTER} !important;
-            }
-            form#aso_search_form_anchor {
-              background-color: #e8eaed !important;
-              border: 1px solid transparent !important;
-            }
-            .ae4, .qh, .G-atb, .Ym, .brC-brI, .aeQ, .G-tF {
-              border-color: #dadce0 !important;
-            }
-            .n6, .bhZ.n3, .J-Ke.n0 {
-              background-color: #e8f0fe !important;
-            }
-            .T-KT, .pH, .a9q {
-              filter: none !important;
-              opacity: 1 !important;
-            }
-            .T-KT.T-KT-CE, .pH.yX, .WA.xY, .pH.a9q {
-              filter: ${RESTORE_FILTER} !important;
-              opacity: 1 !important;
-            }
-            .gb_tc, .bjK, .ajy, .ajv, .ajz {
-              filter: none !important;
-            }
-          `;
-        } else {
-          // In subframes, we only want to counter-invert media and specific UI elements.
-          // We do not apply the global inversion filter to html, because the parent
-          // frame is already inverting the entire iframe.
-          newStyleTag.textContent = `
-            /* Counter-invert media and specific UI elements to restore original colors.
-               Matches elements with inline background styles containing url(), plus our dynamically tagged elements.
-                 The url() match requires "background" in the style to avoid matching cursor: url(...)
-                 which Gmail sets on <body> during drag & drop (it would flip the whole page to light).
-               RESTORE_FILTER is the exact inverse of the dark filter (reciprocal values, reverse order). */
-            img, video, canvas, [style*="background-image"], [style*="background"][style*="url("], svg,
-            .qj, .at, .ahR, .auto-dark-counter-invert {
-              filter: ${RESTORE_FILTER} !important;
-            }
-            .T-KT.T-KT-CE, .pH.yX, .WA.xY, .pH.a9q {
-              filter: ${RESTORE_FILTER} !important;
-              opacity: 1 !important;
-            }
-          `;
-        }
-        (document.head || document.documentElement).appendChild(newStyleTag);
-      }
-      // Perform dynamic counter-inversion scan
-      counterInvertDynamicBackgrounds();
-    } else {
+    // Dark mode off: tear down our style tag (if any) and stop.
+    if (!isDarkActive()) {
       if (styleTag) styleTag.remove();
+      return;
     }
+
+    // Dark mode on: make sure our style tag exists. The top frame gets the full
+    // stylesheet; subframes get COUNTER_INVERT_CSS only, since the top frame is
+    // already inverting the whole iframe for them.
+    if (!styleTag) {
+      const newStyleTag = document.createElement('style');
+      newStyleTag.id = 'auto-dark-gmail-styles';
+      newStyleTag.textContent = isTopFrame ? TOP_FRAME_CSS : COUNTER_INVERT_CSS;
+      (document.head || document.documentElement).appendChild(newStyleTag);
+    }
+
+    // Tag any elements whose background image is set via a CSS class so they get counter-inverted too.
+    counterInvertDynamicBackgrounds();
   };
 
   // Learn the dark state from an ancestor frame (see ancestorDark), apply it locally,
