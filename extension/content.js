@@ -46,15 +46,69 @@
   const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
   /**
+   * Exact inverse of the dark filter chain
+   * (invert(1) hue-rotate(180deg) brightness(1.2) contrast(0.85) saturate(1.1)).
+   * The inverse operations must be applied with reciprocal values in REVERSE
+   * order — re-applying them in the same order as the dark filter does not undo
+   * it, which washed out icon and image colors. hue-rotate(180deg) is exactly
+   * self-inverse (its color matrix squared is the identity), so a plain CSS
+   * chain restores original colors exactly for everything inside the displayable
+   * range of the dark filter (only extremely saturated reds/yellows retain a
+   * small residual, a hard limit of the filter-inversion approach).
+   * saturate(1 / 1.1); contrast(1 / 0.85); brightness(1 / 1.2)
+   */
+  const RESTORE_FILTER =
+    'saturate(0.909091) contrast(1.176471) brightness(0.833333) hue-rotate(180deg) invert(1)';
+
+  const isTopFrame = window === window.top;
+
+  // Whether an ANCESTOR Gmail frame currently has dark mode active. Counter-inversion
+  // in a subframe must key off this, not the subframe's own prefers-color-scheme:
+  // Google serves some embedded widgets (e.g. the app launcher at ogs.google.com)
+  // with a forced light color-scheme, so a cross-origin subframe reports light even
+  // while the top frame is dark and is visually inverting the whole page (this iframe
+  // included). The top frame detects dark correctly and relays it down via postMessage.
+  let ancestorDark = false;
+
+  // The dark theme is active in this frame if this frame itself is dark (top frame,
+  // or a subframe that honestly reports dark) or an ancestor told us it is dark.
+  const isDarkActive = () => (isTopFrame ? darkModeQuery.matches : darkModeQuery.matches || ancestorDark);
+
+  // Only accept dark-state messages from our own origin, other Google frames, or
+  // opaque (about:blank / sandboxed) frames. The payload is just a theme boolean.
+  const isTrustedOrigin = (origin) => {
+    if (!origin || origin === 'null') return true;
+    try {
+      return new URL(origin).hostname.includes('google.');
+    } catch (e) {
+      return false;
+    }
+  };
+
+  // Relay the effective dark state to every child frame (works cross-origin).
+  const broadcastDarkToChildren = (dark) => {
+    document.querySelectorAll('iframe').forEach(frame => {
+      try {
+        if (frame.contentWindow) {
+          frame.contentWindow.postMessage({ __autoDarkGmail: true, dark }, '*');
+        }
+      } catch (e) {
+        // Ignore frames we cannot post to
+      }
+    });
+  };
+
+  /**
    * Dynamically finds any element with a computed background-image (e.g. set via a CSS class)
    * and applies the counter-inversion class to it.
    */
   const counterInvertDynamicBackgrounds = (doc = document) => {
+    const view = doc.defaultView || window;
     const elements = doc.querySelectorAll('div, span, a, li, button, [style*="background"]');
     elements.forEach(el => {
       if (el.classList.contains('auto-dark-counter-invert')) return;
       try {
-        const bg = el.style.backgroundImage || window.getComputedStyle(el).backgroundImage;
+        const bg = el.style.backgroundImage || view.getComputedStyle(el).backgroundImage;
         if (bg && bg !== 'none' && bg.includes('url(')) {
           el.classList.add('auto-dark-counter-invert');
         }
@@ -81,15 +135,16 @@
             newStyleTag.id = 'auto-dark-gmail-styles-subframe';
             newStyleTag.textContent = `
               /* Counter-invert media and specific UI elements to restore original colors.
-                 Matches elements with inline styles containing url(), plus our dynamically tagged elements.
-                 We also mathematically invert the parent filter's brightness, contrast, and saturation.
-                 brightness(1 / 1.2) = 0.833; contrast(1 / 0.85) = 1.176; saturate(1 / 1.1) = 0.909 */
-              img, video, canvas, [style*="background-image"], [style*="url("], svg,
+                 Matches elements with inline background styles containing url(), plus our dynamically tagged elements.
+                 The url() match requires "background" in the style to avoid matching cursor: url(...)
+                 which Gmail sets on <body> during drag & drop (it would flip the whole page to light).
+                 RESTORE_FILTER is the exact inverse of the dark filter (reciprocal values, reverse order). */
+              img, video, canvas, [style*="background-image"], [style*="background"][style*="url("], svg,
               .qj, .at, .ahR, .auto-dark-counter-invert {
-                filter: invert(1) hue-rotate(180deg) brightness(0.833) contrast(1.176) saturate(0.909) !important;
+                filter: ${RESTORE_FILTER} !important;
               }
               .T-KT.T-KT-CE, .pH.yX, .WA.xY, .pH.a9q {
-                filter: invert(1) hue-rotate(180deg) brightness(0.833) contrast(1.176) saturate(0.909) !important;
+                filter: ${RESTORE_FILTER} !important;
                 opacity: 1 !important;
               }
             `;
@@ -105,10 +160,9 @@
   };
 
   const applyTheme = () => {
-    const isTopFrame = window === window.top;
     const styleTag = document.getElementById('auto-dark-gmail-styles');
 
-    if (darkModeQuery.matches) {
+    if (isDarkActive()) {
       if (!styleTag) {
         const newStyleTag = document.createElement('style');
         newStyleTag.id = 'auto-dark-gmail-styles';
@@ -132,12 +186,13 @@
               box-shadow: none !important;
             }
             /* Counter-invert media and specific UI elements to restore original colors.
-               Matches elements with inline styles containing url(), plus our dynamically tagged elements.
-               We also mathematically invert the parent filter's brightness, contrast, and saturation.
-               brightness(1 / 1.2) = 0.833; contrast(1 / 0.85) = 1.176; saturate(1 / 1.1) = 0.909 */
-            img, video, canvas, [style*="background-image"], [style*="url("], svg,
+               Matches elements with inline background styles containing url(), plus our dynamically tagged elements.
+                 The url() match requires "background" in the style to avoid matching cursor: url(...)
+                 which Gmail sets on <body> during drag & drop (it would flip the whole page to light).
+               RESTORE_FILTER is the exact inverse of the dark filter (reciprocal values, reverse order). */
+            img, video, canvas, [style*="background-image"], [style*="background"][style*="url("], svg,
             .qj, .at, .ahR, .auto-dark-counter-invert {
-              filter: invert(1) hue-rotate(180deg) brightness(0.833) contrast(1.176) saturate(0.909) !important;
+              filter: ${RESTORE_FILTER} !important;
             }
             form#aso_search_form_anchor {
               background-color: #e8eaed !important;
@@ -154,7 +209,7 @@
               opacity: 1 !important;
             }
             .T-KT.T-KT-CE, .pH.yX, .WA.xY, .pH.a9q {
-              filter: invert(1) hue-rotate(180deg) brightness(0.833) contrast(1.176) saturate(0.909) !important;
+              filter: ${RESTORE_FILTER} !important;
               opacity: 1 !important;
             }
             .gb_tc, .bjK, .ajy, .ajv, .ajz {
@@ -167,15 +222,16 @@
           // frame is already inverting the entire iframe.
           newStyleTag.textContent = `
             /* Counter-invert media and specific UI elements to restore original colors.
-               Matches elements with inline styles containing url(), plus our dynamically tagged elements.
-               We also mathematically invert the parent filter's brightness, contrast, and saturation.
-               brightness(1 / 1.2) = 0.833; contrast(1 / 0.85) = 1.176; saturate(1 / 1.1) = 0.909 */
-            img, video, canvas, [style*="background-image"], [style*="url("], svg,
+               Matches elements with inline background styles containing url(), plus our dynamically tagged elements.
+                 The url() match requires "background" in the style to avoid matching cursor: url(...)
+                 which Gmail sets on <body> during drag & drop (it would flip the whole page to light).
+               RESTORE_FILTER is the exact inverse of the dark filter (reciprocal values, reverse order). */
+            img, video, canvas, [style*="background-image"], [style*="background"][style*="url("], svg,
             .qj, .at, .ahR, .auto-dark-counter-invert {
-              filter: invert(1) hue-rotate(180deg) brightness(0.833) contrast(1.176) saturate(0.909) !important;
+              filter: ${RESTORE_FILTER} !important;
             }
             .T-KT.T-KT-CE, .pH.yX, .WA.xY, .pH.a9q {
-              filter: invert(1) hue-rotate(180deg) brightness(0.833) contrast(1.176) saturate(0.909) !important;
+              filter: ${RESTORE_FILTER} !important;
               opacity: 1 !important;
             }
           `;
@@ -189,19 +245,33 @@
     }
   };
 
+  // Learn the dark state from an ancestor frame (see ancestorDark), apply it locally,
+  // and relay it onward to our own child frames (for deeply nested widgets).
+  window.addEventListener('message', (event) => {
+    const data = event.data;
+    if (!data || data.__autoDarkGmail !== true || !isTrustedOrigin(event.origin)) return;
+    ancestorDark = !!data.dark;
+    applyTheme();
+    if (isDarkActive()) {
+      counterInvertDynamicBackgrounds();
+    }
+    broadcastDarkToChildren(isDarkActive());
+  });
+
   // Initial execution (may run before <head> exists at document_start)
   applyTheme();
 
   // Set a safe periodic interval to ensure style permanence, inject styles into subframes,
-  // and capture dynamically loaded background icons.
+  // capture dynamically loaded background icons, and keep child frames in sync.
   setInterval(() => {
     applyTheme();
-    if (darkModeQuery.matches) {
+    if (isDarkActive()) {
       counterInvertDynamicBackgrounds();
-      if (window === window.top) {
+      if (isTopFrame) {
         injectStylesIntoSubframes();
       }
     }
+    broadcastDarkToChildren(isDarkActive());
   }, 500);
 
   // Re-apply once the DOM is ready so the style is properly placed in <head>
@@ -210,26 +280,28 @@
   document.addEventListener('DOMContentLoaded', () => {
     applyTheme();
     observer.disconnect();
-    if (darkModeQuery.matches) {
+    if (isDarkActive()) {
       observer.observe(document.head || document.documentElement, { childList: true });
-      if (window === window.top) {
+      if (isTopFrame) {
         injectStylesIntoSubframes();
       }
     }
+    broadcastDarkToChildren(isDarkActive());
   });
 
   // Listen for changes in the system preference (Light/Dark).
-  // Connect/disconnect the observer as dark mode turns on/off.
+  // Connect/disconnect the observer as dark mode turns on/off, and notify child frames.
   darkModeQuery.addEventListener('change', () => {
     applyTheme();
-    if (darkModeQuery.matches) {
+    if (isDarkActive()) {
       observer.observe(document.head || document.documentElement, { childList: true });
-      if (window === window.top) {
+      if (isTopFrame) {
         injectStylesIntoSubframes();
       }
     } else {
       observer.disconnect();
     }
+    broadcastDarkToChildren(isDarkActive());
   });
 
   // Reapply styles if <head> changes (Gmail is a SPA and may remove injected styles).

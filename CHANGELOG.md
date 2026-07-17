@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.7] - 2026-07-16
+
+### Fixed
+- Dark mode no longer flickers back to a white page while you drag an email to another tab or label.
+- Icons and images now keep their true colors in dark mode. Previously some looked faded or slightly off-tint.
+- The Google apps menu (the grid icon at the top right) now shows its app icons in their real colors instead of washed-out or wrong ones — for example, YouTube red no longer looks pink and Keep yellow no longer looks brown.
+
 ## [1.0.6] - 2026-06-03
 
 ### Fixed
