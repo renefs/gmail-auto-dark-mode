@@ -2,7 +2,7 @@
 
 Automatically applies a dark theme to Gmail when your OS is in dark mode — and reverts instantly when you switch back.
 
-![Gmail Auto Dark Mode screenshot](screenshot.png)
+![Gmail Auto Dark Mode - Your system switches, Gmail follows](store-assets/png/gmail-light-dark-comparison.png)
 
 ## Features
 
@@ -11,6 +11,16 @@ Automatically applies a dark theme to Gmail when your OS is in dark mode — and
 - Counter-inverts images, videos, and icons in emails, chats, and side panel companion apps (Keep, Calendar, Tasks, Contacts) so they look normal
 - Reapplies the theme after Gmail's internal navigation via a `MutationObserver`
 - No data collected — nothing is read, stored, or transmitted
+
+## Screenshots
+
+### Dark theme
+
+![Gmail in dark mode](store-assets/png/gmail-dark-fictional-inbox.png)
+
+### Light theme
+
+![Gmail in light mode](store-assets/png/gmail-light-fictional-inbox.png)
 
 ## How it works
 
@@ -42,6 +52,8 @@ gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 ```
 
 ## Privacy
+
+![Private by design](store-assets/png/gmail-private-by-design.png)
 
 No data is collected or transmitted. All processing is local. See [Privacy Policy](PRIVACY.md).
 
