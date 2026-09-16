@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.9] - 2026-09-16
+
+### Fixed
+- Gmail UI icons (selection checkboxes in the message list, toolbar icons, pagination chevrons, and sidebar navigation) now remain clearly visible in dark mode instead of blending into the dark background.
+- Text typed into the search bar is no longer rendered dark-on-dark caused by spacer GIF backgrounds.
+- Prevented double-theming on Material components (such as disabled buttons) in dark mode.
+
 ## [1.0.8] - 2026-08-26
 
 ### Changed
